@@ -949,44 +949,6 @@
     color:#5f6f95;
     font-size:11px;
   }
-  .account-edit-link{
-    background:none;
-    border:none;
-    color:#7c8bb0;
-    font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
-    font-size:11px;
-    text-decoration:underline;
-    cursor:pointer;
-    padding:0;
-    margin-left:6px;
-  }
-  .account-edit-link:hover{color:#ffffff;}
-  .name-edit-inline{
-    display:none;
-    align-items:center;
-    gap:6px;
-    margin-top:4px;
-  }
-  .name-edit-inline.show{display:flex;}
-  .name-edit-inline input{
-    background:var(--bg);
-    border:1px solid var(--line);
-    color:var(--text-primary);
-    padding:4px 8px;
-    border-radius:var(--radius);
-    font-size:11px;
-    height:24px;
-    width:160px;
-  }
-  .name-edit-inline button{
-    background:none;
-    border:none;
-    font-size:11px;
-    cursor:pointer;
-    padding:0;
-  }
-  .name-edit-ok{color:var(--normal);}
-  .name-edit-cancel{color:#7c8bb0;}
 </style>
 </head>
 <body>
@@ -1018,11 +980,6 @@
         <h1>Carnet de tâches</h1>
         <p>Liste de tâches professionnelle</p>
         <p class="account-line" id="accountLine"></p>
-        <div class="name-edit-inline" id="nameEditInline">
-          <input type="text" id="displayNameInput" placeholder="Ton nom">
-          <button type="button" id="saveNameBtn" class="name-edit-ok">OK</button>
-          <button type="button" id="cancelNameBtn" class="name-edit-cancel">Annuler</button>
-        </div>
       </div>
     </div>
     <div class="header-right">
@@ -1194,53 +1151,11 @@ function showLoginScreen(){
 function showApp(){
   document.getElementById('loginWrap').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
-  renderAccountLine();
-}
-
-function currentDisplayName(){
-  return currentUser && currentUser.user_metadata && currentUser.user_metadata.display_name;
-}
-
-function renderAccountLine(){
   const line = document.getElementById('accountLine');
-  if(!currentUser) return;
-  const name = currentDisplayName();
-  const label = name ? ('Connecté : ' + name) : ('Connecté : ' + currentUser.email);
-  const linkText = name ? 'modifier' : 'ajouter mon nom';
-  line.innerHTML = escapeHtml(label) + ` <button type="button" id="editNameBtn" class="account-edit-link">${linkText}</button>`;
-  document.getElementById('editNameBtn').addEventListener('click', ()=>{
-    const inline = document.getElementById('nameEditInline');
-    const input = document.getElementById('displayNameInput');
-    input.value = name || '';
-    inline.classList.add('show');
-    input.focus();
-  });
-}
-
-document.getElementById('cancelNameBtn').addEventListener('click', ()=>{
-  document.getElementById('nameEditInline').classList.remove('show');
-});
-document.getElementById('saveNameBtn').addEventListener('click', saveDisplayName);
-document.getElementById('displayNameInput').addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter') saveDisplayName();
-  if(e.key === 'Escape') document.getElementById('nameEditInline').classList.remove('show');
-});
-async function saveDisplayName(){
-  const input = document.getElementById('displayNameInput');
-  const clean = input.value.trim();
-  if(!clean) { input.focus(); return; }
-  const btn = document.getElementById('saveNameBtn');
-  btn.disabled = true;
-  const { data, error } = await sb.auth.updateUser({ data: { display_name: clean } });
-  btn.disabled = false;
-  if(error){
-    console.error(error);
-    showSaveErrorBanner();
-    return;
+  if(currentUser){
+    const name = currentUser.user_metadata && currentUser.user_metadata.display_name;
+    line.textContent = 'Connecté : ' + (name || currentUser.email);
   }
-  currentUser = data.user;
-  document.getElementById('nameEditInline').classList.remove('show');
-  renderAccountLine();
 }
 function showLoginError(msg){
   const el = document.getElementById('loginError');
