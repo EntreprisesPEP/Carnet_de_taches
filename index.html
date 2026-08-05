@@ -367,7 +367,13 @@
     gap:12px;
     box-shadow:0 1px 3px var(--card-shadow);
     animation:slideIn 0.25s ease;
-    transition:box-shadow 0.2s ease;
+    transition:box-shadow 0.2s ease, outline-color 0.15s ease;
+    outline:2px dashed transparent;
+    outline-offset:-2px;
+  }
+  .task.drag-over{
+    outline-color:var(--normal);
+    background:var(--paper-2);
   }
   .task-created{
     position:absolute;
@@ -1626,6 +1632,22 @@ function render(){
       removeAttachment(btn.getAttribute('data-remove-attachment'));
     });
   });
+  listArea.querySelectorAll('.task[data-task-id]').forEach(taskEl=>{
+    const taskId = taskEl.getAttribute('data-task-id');
+    taskEl.addEventListener('dragover', (e)=>{
+      e.preventDefault();
+      taskEl.classList.add('drag-over');
+    });
+    taskEl.addEventListener('dragleave', ()=>{
+      taskEl.classList.remove('drag-over');
+    });
+    taskEl.addEventListener('drop', (e)=>{
+      e.preventDefault();
+      taskEl.classList.remove('drag-over');
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      if(file) uploadAttachment(taskId, file);
+    });
+  });
 }
 
 function sanitizeFileName(name){
@@ -1644,6 +1666,7 @@ function sanitizeFileName(name){
 async function uploadAttachment(taskId, file){
   const t = state.tasks.find(x=>x.id===taskId);
   if(!t) return;
+  const previousPath = t.attachmentPath;
   const path = `${currentUser.id}/${taskId}/${Date.now()}_${sanitizeFileName(file.name)}`;
   const { error: uploadError } = await sb.storage.from('attachments').upload(path, file);
   if(uploadError){
@@ -1662,18 +1685,36 @@ async function uploadAttachment(taskId, file){
   t.attachmentPath = path;
   t.attachmentName = file.name;
   render();
+  if(previousPath){
+    sb.storage.from('attachments').remove([previousPath]).then(({error})=>{
+      if(error) console.error(error);
+    });
+  }
 }
 
+const INLINE_VIEWABLE_EXT = ['pdf','jpg','jpeg','png','gif','webp','txt'];
 async function openAttachment(taskId){
   const t = state.tasks.find(x=>x.id===taskId);
   if(!t || !t.attachmentPath) return;
-  const { data, error } = await sb.storage.from('attachments').createSignedUrl(t.attachmentPath, 60);
+  const ext = (t.attachmentName || '').split('.').pop().toLowerCase();
+  const canViewInline = INLINE_VIEWABLE_EXT.includes(ext);
+  const { data, error } = await sb.storage.from('attachments')
+    .createSignedUrl(t.attachmentPath, 60, canViewInline ? undefined : { download: t.attachmentName || true });
   if(error || !data){
     console.error(error);
     showSaveErrorBanner();
     return;
   }
-  window.open(data.signedUrl, '_blank');
+  if(canViewInline){
+    window.open(data.signedUrl, '_blank');
+  } else {
+    const a = document.createElement('a');
+    a.href = data.signedUrl;
+    a.download = t.attachmentName || '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 }
 
 async function removeAttachment(taskId){
@@ -1710,7 +1751,7 @@ function taskCardHtml(t){
     tags += `<span class="tag waiting-tag">⏳ En attente de ${escapeHtml(t.waitingOn)}</span>`;
   }
   return `
-    <div class="task ${t.done ? 'done' : pClass}">
+    <div class="task ${t.done ? 'done' : pClass}" data-task-id="${t.id}">
       <input type="checkbox" data-id="${t.id}" ${t.done ? 'checked' : ''}>
       <div class="task-body">
         <div class="task-text">${escapeHtml(t.text)}</div>
