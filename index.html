@@ -438,6 +438,23 @@
     color:var(--ink);
     word-break:break-word;
     line-height:1.3;
+    cursor:text;
+    border-radius:3px;
+    padding:1px 3px;
+    margin:-1px -3px;
+  }
+  .task-text:hover{background:rgba(0,0,0,0.05);}
+  .task-text-input{
+    width:100%;
+    font-size:13px;
+    font-weight:500;
+    font-family:inherit;
+    color:var(--ink);
+    line-height:1.3;
+    border:1px solid var(--normal);
+    border-radius:3px;
+    padding:1px 3px;
+    background:var(--paper-2);
   }
   .task.done .task-text{
     text-decoration:line-through;
@@ -1376,7 +1393,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
 
-const DEFAULT_CATEGORIES = ["Projet","Sous-traitants","Estimation","Fournisseurs","HR","Direction"];
+const DEFAULT_CATEGORIES = ["Autre","Courriel","Estimation","Fournisseur","Interne","Projet","Sous-traitant","Téléphone"];
 let state = { tasks: [], categories: DEFAULT_CATEGORIES.slice(), projects: [] };
 let catFilter = "all";
 let priorityFilter = "all";
@@ -1523,8 +1540,8 @@ async function loadState(){
 
     let cats = (catsRes.data || []).map(c => c.name);
     if(cats.length === 0){
-      // First time this shared list is empty — seed it with the default categories.
-      const seedRows = DEFAULT_CATEGORIES.map(name => ({ name }));
+      // First time for this user — seed their own copy of the default categories.
+      const seedRows = DEFAULT_CATEGORIES.map(name => ({ name, user_id: currentUser.id }));
       const { error: seedErr } = await sb.from('todo_categories').insert(seedRows);
       if(!seedErr){
         cats = DEFAULT_CATEGORIES.slice();
@@ -1536,6 +1553,7 @@ async function loadState(){
     showSaveErrorBanner();
   }
   loaded = true;
+  document.getElementById('inputDate').value = todayISO();
   renderCategoryOptions();
   renderFilterChips();
   toggleProjectField();
@@ -1548,14 +1566,23 @@ async function loadState(){
 function priorityLabel(p){
   return p === 'urgent' ? 'Urgent' : p === 'normal' ? 'Normal' : 'Faible';
 }
+function todayISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 const CATEGORY_COLOR_PALETTE = ['#c4599b','#f0a202','#2fa360','#3b82c4','#8e5fc4','#b0703f','#1b7f7a','#c48a1b','#5568b8','#5f8b3f'];
 const CATEGORY_COLOR_MAP = {
-  'Projet': '#3b82c4',
-  'Sous-traitants': '#c4599b',
+  'Autre': '#5f8b3f',
+  'Courriel': '#5568b8',
   'Estimation': '#c48a1b',
-  'Fournisseurs': '#1b7f7a',
-  'HR': '#8e5fc4',
-  'Direction': '#b0703f'
+  'Fournisseur': '#1b7f7a',
+  'Interne': '#8e5fc4',
+  'Projet': '#3b82c4',
+  'Sous-traitant': '#c4599b',
+  'Téléphone': '#b0703f'
 };
 function categoryColor(name){
   const clean = String(name || '');
@@ -1592,6 +1619,9 @@ function formatCreatedAt(ts){
 
 function renderCategoryOptions(){
   inputCat.innerHTML = state.categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  if(state.categories.includes('Autre')){
+    inputCat.value = 'Autre';
+  }
 }
 
 function contrastTextColor(hex){
@@ -1843,6 +1873,40 @@ function render(){
       if(error){ console.error(error); showSaveErrorBanner(); }
     });
   });
+  listArea.querySelectorAll('[data-edit-text]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const taskId = el.getAttribute('data-edit-text');
+      const t = state.tasks.find(x=>x.id===taskId);
+      if(!t) return;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'task-text-input';
+      input.value = t.text;
+      el.replaceWith(input);
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+
+      let done = false;
+      const finish = async (save)=>{
+        if(done) return;
+        done = true;
+        const newVal = input.value.trim();
+        if(save && newVal && newVal !== t.text){
+          t.text = newVal;
+          render();
+          const { error } = await sb.from('todo_tasks').update({ text: newVal }).eq('id', taskId);
+          if(error){ console.error(error); showSaveErrorBanner(); }
+        } else {
+          render();
+        }
+      };
+      input.addEventListener('blur', ()=> finish(true));
+      input.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter'){ e.preventDefault(); finish(true); }
+        if(e.key === 'Escape'){ e.preventDefault(); finish(false); }
+      });
+    });
+  });
   listArea.querySelectorAll('[data-comment-toggle]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       openCommentBoxes.add(btn.getAttribute('data-comment-toggle'));
@@ -2073,7 +2137,7 @@ function taskCardHtml(t, num){
       <span class="task-num">${num}</span>
       <input type="checkbox" data-id="${t.id}" ${t.done ? 'checked' : ''}>
       <div class="task-body">
-        <div class="task-text">${escapeHtml(t.text)}</div>
+        <div class="task-text" data-edit-text="${t.id}" title="Cliquer pour modifier">${escapeHtml(t.text)}</div>
         <div class="task-tags">${tags}</div>
         ${waitingSectionHtml(t)}
         ${commentsSectionHtml(t)}
@@ -2156,7 +2220,7 @@ async function addTask(){
   };
 
   textEl.value = '';
-  document.getElementById('inputDate').value = '';
+  document.getElementById('inputDate').value = todayISO();
   document.getElementById('inputProjectNum').value = '';
   document.getElementById('inputWaitingOn').value = '';
   updateProjectLookup();
@@ -2195,7 +2259,7 @@ async function confirmNewCategory(){
     renderFilterChips();
     inputCat.value = clean;
     toggleProjectField();
-    const { error } = await sb.from('todo_categories').insert({ name: clean });
+    const { error } = await sb.from('todo_categories').insert({ name: clean, user_id: currentUser.id });
     if(error && error.code !== '23505'){ console.error(error); showSaveErrorBanner(); }
   } else {
     inputCat.value = clean;
@@ -2226,7 +2290,7 @@ document.getElementById('catRemoveConfirmBtn').addEventListener('click', async (
   renderFilterChips();
   toggleProjectField();
   document.getElementById('catRemoveInline').classList.remove('show');
-  const { error } = await sb.from('todo_categories').delete().eq('name', target);
+  const { error } = await sb.from('todo_categories').delete().eq('name', target).eq('user_id', currentUser.id);
   if(error){ console.error(error); showSaveErrorBanner(); }
 });
 
