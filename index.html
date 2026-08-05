@@ -80,14 +80,14 @@
   .wrap{
     max-width:880px;
     margin:0 auto;
-    padding:20px 20px 60px;
+    padding:0 20px 60px;
   }
   .sticky-top{
     position:sticky;
-    top:20px;
+    top:0;
     z-index:30;
     background:var(--bg);
-    padding-top:4px;
+    padding-top:24px;
     padding-bottom:8px;
   }
   .sticky-top-scroll{
@@ -610,6 +610,27 @@
     color:#8a6100;
     font-weight:600;
   }
+  .editable-tag{
+    cursor:pointer;
+    border:1px solid transparent;
+  }
+  .editable-tag:hover{
+    border-color:var(--normal);
+  }
+  .tag.tag-muted{
+    color:var(--ink-soft);
+    opacity:0.65;
+  }
+  .tag-edit-select, .tag-edit-date{
+    font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
+    font-size:10.5px;
+    padding:1px 4px;
+    border-radius:8px;
+    border:1px solid var(--normal);
+    background:var(--paper-2);
+    color:var(--ink);
+    height:20px;
+  }
   .del-btn{
     background:none;
     border:none;
@@ -1059,6 +1080,21 @@
   align-items:center;
   margin-bottom:14px;
 }
+.scroll-nav-btn{
+  flex:0 0 auto;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink);
+  font-size:14px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.scroll-nav-btn:hover{ border-color:var(--normal); }
 .mobile-filter-select{
   flex:0 1 220px;
   min-width:0;
@@ -1305,6 +1341,8 @@
   </div>
 
   <div class="mobile-filters-block">
+    <button type="button" class="scroll-nav-btn" id="scrollTopBtn" title="Revenir en haut" aria-label="Revenir en haut">&#8593;</button>
+    <button type="button" class="scroll-nav-btn" id="scrollDoneBtn" title="Aller aux tâches terminées" aria-label="Aller aux tâches terminées">&#8595;</button>
     <select id="mobileCatFilter" class="mobile-filter-select"></select>
     <select id="mobilePriorityFilter" class="mobile-filter-select">
       <option value="all">Toutes priorités</option>
@@ -1827,10 +1865,11 @@ function render(){
       html += active.map((t,i)=>taskCardHtml(t, i+1)).join('');
     }
     if(showDone && done.length > 0){
-      html += `<div class="section-title">Terminées (${done.length})</div>`;
+      html += `<div class="section-title" id="doneSectionTitle">Terminées (${done.length})</div>`;
       html += done.map((t,i)=>taskCardHtml(t, active.length + i + 1)).join('');
     }
   }
+  html += `<div id="listEndMarker"></div>`;
   listArea.innerHTML = html;
 
   listArea.querySelectorAll('.task input[type=checkbox]').forEach(cb=>{
@@ -1905,6 +1944,100 @@ function render(){
         if(e.key === 'Enter'){ e.preventDefault(); finish(true); }
         if(e.key === 'Escape'){ e.preventDefault(); finish(false); }
       });
+    });
+  });
+  listArea.querySelectorAll('[data-edit-cat]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const taskId = el.getAttribute('data-edit-cat');
+      const t = state.tasks.find(x=>x.id===taskId);
+      if(!t) return;
+      const select = document.createElement('select');
+      select.className = 'tag-edit-select';
+      select.innerHTML = state.categories.map(c =>
+        `<option value="${escapeHtml(c)}" ${c === t.category ? 'selected' : ''}>${escapeHtml(c)}</option>`
+      ).join('');
+      el.replaceWith(select);
+      select.focus();
+
+      let done = false;
+      const finish = async ()=>{
+        if(done) return;
+        done = true;
+        const newVal = select.value;
+        if(newVal !== t.category){
+          t.category = newVal;
+          render();
+          const { error } = await sb.from('todo_tasks').update({ category: newVal }).eq('id', taskId);
+          if(error){ console.error(error); showSaveErrorBanner(); }
+        } else {
+          render();
+        }
+      };
+      select.addEventListener('change', finish);
+      select.addEventListener('blur', finish);
+    });
+  });
+  listArea.querySelectorAll('[data-edit-priority]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const taskId = el.getAttribute('data-edit-priority');
+      const t = state.tasks.find(x=>x.id===taskId);
+      if(!t) return;
+      const select = document.createElement('select');
+      select.className = 'tag-edit-select';
+      const options = [['urgent','Urgent'],['normal','Normal'],['low','Faible']];
+      select.innerHTML = options.map(([val,label]) =>
+        `<option value="${val}" ${val === t.priority ? 'selected' : ''}>${label}</option>`
+      ).join('');
+      el.replaceWith(select);
+      select.focus();
+
+      let done = false;
+      const finish = async ()=>{
+        if(done) return;
+        done = true;
+        const newVal = select.value;
+        if(newVal !== t.priority){
+          t.priority = newVal;
+          render();
+          const { error } = await sb.from('todo_tasks').update({ priority: newVal }).eq('id', taskId);
+          if(error){ console.error(error); showSaveErrorBanner(); }
+        } else {
+          render();
+        }
+      };
+      select.addEventListener('change', finish);
+      select.addEventListener('blur', finish);
+    });
+  });
+  listArea.querySelectorAll('[data-edit-due]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const taskId = el.getAttribute('data-edit-due');
+      const t = state.tasks.find(x=>x.id===taskId);
+      if(!t) return;
+      const input = document.createElement('input');
+      input.type = 'date';
+      input.className = 'tag-edit-date';
+      input.value = t.dueDate || '';
+      el.replaceWith(input);
+      input.focus();
+      try{ input.showPicker && input.showPicker(); }catch(e){}
+
+      let done = false;
+      const finish = async ()=>{
+        if(done) return;
+        done = true;
+        const newVal = input.value || null;
+        if(newVal !== (t.dueDate || null)){
+          t.dueDate = newVal;
+          render();
+          const { error } = await sb.from('todo_tasks').update({ due_date: newVal }).eq('id', taskId);
+          if(error){ console.error(error); showSaveErrorBanner(); }
+        } else {
+          render();
+        }
+      };
+      input.addEventListener('change', finish);
+      input.addEventListener('blur', finish);
     });
   });
   listArea.querySelectorAll('[data-comment-toggle]').forEach(btn=>{
@@ -2110,13 +2243,17 @@ function taskCardHtml(t, num){
   let catTag;
   if(t.category === 'Projet' && t.projectNumber){
     const label = 'Projet ' + t.projectNumber + (t.projectName ? ' · ' + t.projectName : '');
-    catTag = `<span class="tag tag-cat proj-tag" ${catStyle}>${escapeHtml(label)}</span>`;
+    catTag = `<span class="tag tag-cat proj-tag editable-tag" ${catStyle} data-edit-cat="${t.id}" title="Cliquer pour modifier la catégorie">${escapeHtml(label)}</span>`;
   } else {
-    catTag = `<span class="tag tag-cat" ${catStyle}>${escapeHtml(t.category)}</span>`;
+    catTag = `<span class="tag tag-cat editable-tag" ${catStyle} data-edit-cat="${t.id}" title="Cliquer pour modifier la catégorie">${escapeHtml(t.category)}</span>`;
   }
-  let tags = catTag + `<span class="tag">${priorityLabel(t.priority)}</span>`;
+  let tags = catTag + `<span class="tag editable-tag" data-edit-priority="${t.id}" title="Cliquer pour modifier la priorité">${priorityLabel(t.priority)}</span>`;
   if(t.dueDate){
-    tags += overdue ? `<span class="tag overdue">En retard · ${formatDate(t.dueDate)}</span>` : `<span class="tag">Échéance ${formatDate(t.dueDate)}</span>`;
+    const dueClass = overdue ? 'tag overdue editable-tag' : 'tag editable-tag';
+    const dueLabel = overdue ? 'En retard · ' + formatDate(t.dueDate) : 'Échéance ' + formatDate(t.dueDate);
+    tags += `<span class="${dueClass}" data-edit-due="${t.id}" title="Cliquer pour modifier l'échéance">${dueLabel}</span>`;
+  } else {
+    tags += `<span class="tag editable-tag tag-muted" data-edit-due="${t.id}" title="Cliquer pour ajouter une échéance">+ Échéance</span>`;
   }
   if(t.waitingOn){
     tags += `<span class="tag waiting-tag">⏳ ${escapeHtml(t.waitingOn)}</span>`;
@@ -2528,6 +2665,13 @@ document.getElementById('showDone').addEventListener('change', (e)=>{
 document.getElementById('sortProjToggle').addEventListener('change', (e)=>{
   sortByProjectNumber = e.target.checked;
   render();
+});
+document.getElementById('scrollTopBtn').addEventListener('click', ()=>{
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+document.getElementById('scrollDoneBtn').addEventListener('click', ()=>{
+  const target = document.getElementById('doneSectionTitle') || document.getElementById('listEndMarker');
+  if(target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 document.getElementById('onlyWaitingToggle').addEventListener('change', (e)=>{
   onlyWaiting = e.target.checked;
