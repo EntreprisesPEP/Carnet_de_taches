@@ -75,17 +75,15 @@
   .wrap{
     max-width:880px;
     margin:0 auto;
-    padding:14px 20px 60px;
+    padding:20px 20px 60px;
   }
   .sticky-top{
     position:sticky;
     top:0;
     z-index:30;
     background:var(--bg);
-    padding-top:2px;
-    padding-bottom:6px;
-    max-height:20vh;
-    overflow-y:auto;
+    padding-top:4px;
+    padding-bottom:8px;
   }
 
   /* HEADER — PEP2000 brand card */
@@ -95,15 +93,15 @@
     align-items:center;
     background:var(--navy);
     border-radius:var(--radius);
-    padding:10px 18px;
-    margin-bottom:10px;
+    padding:16px 22px;
+    margin-bottom:18px;
     flex-wrap:wrap;
     gap:12px;
   }
   .brand-block{
     display:flex;
     align-items:center;
-    gap:12px;
+    gap:14px;
   }
   .brand-block a{
     display:inline-block;
@@ -111,7 +109,7 @@
     text-decoration:none;
   }
   .brand-logo{
-    height:42px;
+    height:64px;
     width:auto;
     flex-shrink:0;
   }
@@ -119,22 +117,22 @@
     font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
     font-weight:700;
     letter-spacing:0.5px;
-    font-size:18px;
-    margin:0 0 1px;
+    font-size:23px;
+    margin:0 0 2px;
     text-transform:uppercase;
     color:#ffffff;
   }
   .titleblock p{
     margin:0;
     color:#9aa5c0;
-    font-size:11px;
+    font-size:12px;
   }
   .ticket-meta{
     text-align:right;
     font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
-    font-size:11px;
+    font-size:12px;
     color:#9aa5c0;
-    line-height:1.4;
+    line-height:1.5;
   }
   .ticket-meta .no{
     color:var(--urgent);
@@ -145,11 +143,11 @@
     border:none;
     color:#7c8bb0;
     font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
-    font-size:10.5px;
+    font-size:11px;
     text-decoration:underline;
     cursor:pointer;
     padding:0;
-    margin-top:2px;
+    margin-top:3px;
   }
   .export-link:hover{color:#ffffff;}
 
@@ -158,12 +156,12 @@
     background:var(--bg-panel);
     border:1px solid var(--line);
     border-radius:var(--radius);
-    padding:10px 14px;
-    margin-bottom:8px;
+    padding:16px;
+    margin-bottom:16px;
   }
   .form-panel .label{
     font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
-    font-size:9.5px;
+    font-size:10px;
     letter-spacing:1px;
     text-transform:uppercase;
     color:var(--text-dim);
@@ -184,11 +182,11 @@
     background:var(--bg);
     border:1px solid var(--line);
     color:var(--text-primary);
-    padding:5px 8px;
+    padding:8px 10px;
     border-radius:var(--radius);
     font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
-    font-size:12.5px;
-    height:29px;
+    font-size:13.5px;
+    height:36px;
   }
   input[type=text]:focus, input[type=date]:focus, select:focus{
     outline:2px solid var(--normal);
@@ -296,9 +294,9 @@
     font-weight:600;
     text-transform:uppercase;
     letter-spacing:0.5px;
-    font-size:11.5px;
-    padding:6px 14px;
-    height:29px;
+    font-size:13px;
+    padding:9px 16px;
+    height:36px;
     border-radius:var(--radius);
     cursor:pointer;
     white-space:nowrap;
@@ -310,15 +308,15 @@
   /* FILTER BAR */
   .filters{
     display:flex;
-    gap:6px;
+    gap:8px;
     flex-wrap:wrap;
-    margin-bottom:8px;
+    margin-bottom:14px;
     align-items:center;
   }
   .chip{
     font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
-    font-size:10px;
-    padding:4px 10px;
+    font-size:11px;
+    padding:5px 12px;
     border-radius:20px;
     border:1px solid var(--line);
     background:transparent;
@@ -467,62 +465,66 @@
   .comment-text{
     color:var(--ink);
   }
-  .comment-toggle-btn{
+  .icon-action-btn{
     background:none;
-    border:none;
-    color:var(--text-dim);
-    font-size:10.5px;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    font-size:11px;
+    width:22px;
+    height:22px;
+    border-radius:50%;
     cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
     padding:0;
-    margin-top:4px;
-    text-decoration:underline;
+    position:relative;
+    line-height:1;
   }
-  .comment-toggle-btn:hover{color:var(--normal);}
-  .attachment-row{
-    margin-top:4px;
+  .icon-action-btn:hover{border-color:var(--normal);color:var(--ink);}
+  .icon-action-btn.active{
+    border-color:var(--normal);
+    background:#fff3d6;
+    color:#8a6100;
+  }
+  .icon-badge{
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    background:var(--urgent);
+    color:#fff;
+    font-size:8.5px;
+    line-height:1;
+    padding:2px 4px;
+    border-radius:8px;
+    min-width:13px;
+    text-align:center;
+  }
+  .attachment-icon-wrap{
+    position:relative;
+    display:inline-flex;
+  }
+  .icon-remove-overlay{
+    position:absolute;
+    top:-5px;
+    right:-5px;
+    width:13px;
+    height:13px;
+    border-radius:50%;
+    background:var(--overdue);
+    color:#fff;
+    border:none;
+    font-size:8px;
+    line-height:1;
+    cursor:pointer;
     display:flex;
     align-items:center;
-    gap:6px;
-    flex-wrap:wrap;
+    justify-content:center;
+    padding:0;
+    opacity:0;
+    transition:opacity 0.15s ease;
   }
-  .attachment-add-link{
-    color:var(--text-dim);
-    font-size:10.5px;
-    cursor:pointer;
-    text-decoration:underline;
-  }
-  .attachment-add-link:hover{color:var(--normal);}
-  .attachment-name{
-    background:var(--paper-2);
-    color:var(--ink);
-    border:1px solid var(--line);
-    font-size:11px;
-    padding:2px 8px;
-    border-radius:14px;
-    max-width:220px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  .attachment-action{
-    background:none;
-    border:1px solid var(--line);
-    color:var(--ink-soft);
-    font-size:11px;
-    padding:3px 9px;
-    border-radius:12px;
-    cursor:pointer;
-  }
-  .attachment-action:hover{border-color:var(--normal);color:var(--ink);}
-  .attachment-remove{
-    background:none;
-    border:none;
-    color:var(--ink-soft);
-    cursor:pointer;
-    font-size:13px;
-    opacity:0.6;
-  }
-  .attachment-remove:hover{opacity:1;color:var(--overdue);}
+  .attachment-icon-wrap:hover .icon-remove-overlay{opacity:1;}
   .comment-add-inline{
     margin-top:8px;
     display:flex;
@@ -614,10 +616,10 @@
   .extra-field-row{
     display:flex;
     align-items:end;
-    gap:14px;
+    gap:16px;
     flex-wrap:wrap;
-    margin-top:8px;
-    padding-top:8px;
+    margin-top:14px;
+    padding-top:14px;
     border-top:1px solid var(--line);
   }
   .project-field-inner{
@@ -1209,6 +1211,7 @@ let sortByProjectNumber = false;
 let onlyWaiting = false;
 let loaded = false;
 let openCommentBoxes = new Set();
+let openWaitingBoxes = new Set();
 
 const listArea = document.getElementById('listArea');
 const filterCats = document.getElementById('filterCats');
@@ -1671,19 +1674,56 @@ function render(){
       if(file) uploadAttachment(taskId, file);
     });
   });
-  listArea.querySelectorAll('[data-view-attachment]').forEach(btn=>{
+  listArea.querySelectorAll('[data-attachment-icon]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      viewAttachment(btn.getAttribute('data-view-attachment'));
-    });
-  });
-  listArea.querySelectorAll('[data-download-attachment]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      downloadAttachment(btn.getAttribute('data-download-attachment'));
+      const taskId = btn.getAttribute('data-attachment-icon');
+      const t = state.tasks.find(x=>x.id===taskId);
+      if(t && t.attachmentPath){
+        viewAttachment(taskId);
+      } else {
+        const input = listArea.querySelector(`[data-attach-task="${taskId}"]`);
+        if(input) input.click();
+      }
     });
   });
   listArea.querySelectorAll('[data-remove-attachment]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
       removeAttachment(btn.getAttribute('data-remove-attachment'));
+    });
+  });
+  listArea.querySelectorAll('[data-waiting-toggle]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      openWaitingBoxes.add(btn.getAttribute('data-waiting-toggle'));
+      render();
+    });
+  });
+  listArea.querySelectorAll('[data-waiting-cancel]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      openWaitingBoxes.delete(btn.getAttribute('data-waiting-cancel'));
+      render();
+    });
+  });
+  listArea.querySelectorAll('[data-waiting-confirm]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-waiting-confirm');
+      const input = listArea.querySelector(`[data-waiting-input="${id}"]`);
+      const value = input ? input.value.trim() : '';
+      const t = state.tasks.find(x=>x.id===id);
+      if(t){
+        t.waitingOn = value || null;
+        openWaitingBoxes.delete(id);
+        render();
+        const { error } = await sb.from('todo_tasks').update({ waiting_on: t.waitingOn }).eq('id', id);
+        if(error){ console.error(error); showSaveErrorBanner(); }
+      }
+    });
+  });
+  listArea.querySelectorAll('[data-waiting-input]').forEach(inp=>{
+    inp.focus();
+    inp.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter') listArea.querySelector(`[data-waiting-confirm="${inp.getAttribute('data-waiting-input')}"]`).click();
+      if(e.key === 'Escape'){ openWaitingBoxes.delete(inp.getAttribute('data-waiting-input')); render(); }
     });
   });
   listArea.querySelectorAll('.task[data-task-id]').forEach(taskEl=>{
@@ -1807,8 +1847,18 @@ function taskCardHtml(t, num){
     tags += overdue ? `<span class="tag overdue">En retard · ${formatDate(t.dueDate)}</span>` : `<span class="tag">Échéance ${formatDate(t.dueDate)}</span>`;
   }
   if(t.waitingOn){
-    tags += `<span class="tag waiting-tag">⏳ En attente de ${escapeHtml(t.waitingOn)}</span>`;
+    tags += `<span class="tag waiting-tag">⏳ ${escapeHtml(t.waitingOn)}</span>`;
   }
+
+  const commentCount = (t.comments || []).length;
+  tags += `<button type="button" class="icon-action-btn" data-comment-toggle="${t.id}" title="Commentaires">💬${commentCount > 0 ? `<span class="icon-badge">${commentCount}</span>` : ''}</button>`;
+  tags += `<button type="button" class="icon-action-btn${t.waitingOn ? ' active' : ''}" data-waiting-toggle="${t.id}" title="${t.waitingOn ? 'En attente de ' + escapeHtml(t.waitingOn) : 'Ajouter une personne en attente'}">@</button>`;
+  tags += `<span class="attachment-icon-wrap">
+      <button type="button" class="icon-action-btn${t.attachmentPath ? ' active' : ''}" data-attachment-icon="${t.id}" title="${t.attachmentPath ? escapeHtml(t.attachmentName || 'Fichier joint') : 'Joindre un fichier'}">📎</button>
+      ${t.attachmentPath ? `<button type="button" class="icon-remove-overlay" data-remove-attachment="${t.id}" title="Retirer la pièce jointe" aria-label="Retirer la pièce jointe">✕</button>` : ''}
+      <input type="file" class="attachment-file-input" data-attach-task="${t.id}" hidden>
+    </span>`;
+
   return `
     <div class="task ${t.done ? 'done' : pClass}" data-task-id="${t.id}">
       <span class="task-num">${num}</span>
@@ -1816,7 +1866,7 @@ function taskCardHtml(t, num){
       <div class="task-body">
         <div class="task-text">${escapeHtml(t.text)}</div>
         <div class="task-tags">${tags}</div>
-        ${attachmentSectionHtml(t)}
+        ${waitingSectionHtml(t)}
         ${commentsSectionHtml(t)}
       </div>
       <button class="del-btn" data-id="${t.id}" title="Supprimer" aria-label="Supprimer">✕</button>
@@ -1824,28 +1874,21 @@ function taskCardHtml(t, num){
     </div>`;
 }
 
-function attachmentSectionHtml(t){
-  if(t.attachmentPath){
-    return `
-      <div class="attachment-row">
-        <span class="attachment-name">📎 ${escapeHtml(t.attachmentName || 'Fichier joint')}</span>
-        <button type="button" class="attachment-action" data-view-attachment="${t.id}" title="Ouvrir">Ouvrir</button>
-        <button type="button" class="attachment-action" data-download-attachment="${t.id}" title="Télécharger">Télécharger</button>
-        <button type="button" class="attachment-remove" data-remove-attachment="${t.id}" title="Retirer la pièce jointe" aria-label="Retirer la pièce jointe">✕</button>
-      </div>`;
-  }
+function waitingSectionHtml(t){
+  if(!openWaitingBoxes.has(t.id)) return '';
   return `
-    <div class="attachment-row">
-      <label class="attachment-add-link">
-        📎 Joindre un fichier
-        <input type="file" class="attachment-file-input" data-attach-task="${t.id}" hidden>
-      </label>
+    <div class="comment-add-inline">
+      <input type="text" class="comment-textarea" data-waiting-input="${t.id}" placeholder="Nom de la personne" value="${escapeHtml(t.waitingOn || '')}">
+      <div class="comment-add-actions">
+        <button type="button" class="new-cat-cancel" data-waiting-cancel="${t.id}" title="Annuler">Annuler</button>
+        <button type="button" class="new-cat-ok" data-waiting-confirm="${t.id}" title="Enregistrer">Enregistrer</button>
+      </div>
     </div>`;
 }
 
 function commentsSectionHtml(t){
+  if(!openCommentBoxes.has(t.id)) return '';
   const comments = t.comments || [];
-  const isOpen = openCommentBoxes.has(t.id);
   let html = '';
   if(comments.length > 0){
     html += `<div class="comment-list">` + comments.map(c => `
@@ -1854,18 +1897,14 @@ function commentsSectionHtml(t){
         <span class="comment-text">${escapeHtml(c.text)}</span>
       </div>`).join('') + `</div>`;
   }
-  if(isOpen){
-    html += `
-      <div class="comment-add-inline">
-        <textarea class="comment-textarea" data-comment-input="${t.id}" placeholder="Nouvelle information à ajouter..." rows="2"></textarea>
-        <div class="comment-add-actions">
-          <button type="button" class="new-cat-cancel" data-comment-cancel="${t.id}" title="Annuler">Annuler</button>
-          <button type="button" class="new-cat-ok" data-comment-confirm="${t.id}" title="Ajouter">Ajouter</button>
-        </div>
-      </div>`;
-  } else {
-    html += `<button type="button" class="comment-toggle-btn" data-comment-toggle="${t.id}">+ Ajouter un commentaire</button>`;
-  }
+  html += `
+    <div class="comment-add-inline">
+      <textarea class="comment-textarea" data-comment-input="${t.id}" placeholder="Nouvelle information à ajouter..." rows="2"></textarea>
+      <div class="comment-add-actions">
+        <button type="button" class="new-cat-cancel" data-comment-cancel="${t.id}" title="Annuler">Annuler</button>
+        <button type="button" class="new-cat-ok" data-comment-confirm="${t.id}" title="Ajouter">Ajouter</button>
+      </div>
+    </div>`;
   return html;
 }
 
