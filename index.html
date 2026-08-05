@@ -45,8 +45,13 @@
   }
   html{transition:background 0.2s ease;}
   .top-bar{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
     height:4px;
     background:var(--brand-red);
+    z-index:40;
   }
   .save-error-banner{
     display:none;
@@ -489,6 +494,15 @@
     border-color:var(--normal);
     background:#fff3d6;
     color:#8a6100;
+  }
+  .icon-action-btn.icon-preview-btn{
+    width:auto;
+    height:20px;
+    border-radius:10px;
+    padding:0 8px;
+    font-size:10px;
+    gap:2px;
+    white-space:nowrap;
   }
   .icon-badge{
     position:absolute;
@@ -1173,7 +1187,6 @@
 </head>
 <body>
 <div class="top-bar"></div>
-
 <div class="login-wrap" id="loginWrap">
   <div class="login-card">
     <img src="icon-192.png" alt="Logo PEP" class="login-logo" onerror="this.style.display='none'">
@@ -1634,6 +1647,11 @@ function escapeHtml(s){
   return d.innerHTML;
 }
 
+function truncate(str, n){
+  if(!str) return '';
+  return str.length > n ? str.slice(0, n) + '…' : str;
+}
+
 function findProject(num){
   const clean = String(num || '').trim().toLowerCase();
   if(!clean) return null;
@@ -2041,10 +2059,11 @@ function taskCardHtml(t, num){
   }
 
   const commentCount = (t.comments || []).length;
-  tags += `<button type="button" class="icon-action-btn" data-comment-toggle="${t.id}" title="Commentaires">💬${commentCount > 0 ? `<span class="icon-badge">${commentCount}</span>` : ''}</button>`;
-  tags += `<button type="button" class="icon-action-btn${t.waitingOn ? ' active' : ''}" data-waiting-toggle="${t.id}" title="${t.waitingOn ? 'En attente de ' + escapeHtml(t.waitingOn) : 'Ajouter une personne en attente'}">@</button>`;
+  const lastComment = commentCount > 0 ? t.comments[commentCount - 1].text : '';
+  tags += `<button type="button" class="icon-action-btn icon-preview-btn" data-comment-toggle="${t.id}" title="Commentaires">💬${commentCount > 0 ? ' ' + escapeHtml(truncate(lastComment, 20)) : ''}${commentCount > 0 ? `<span class="icon-badge">${commentCount}</span>` : ''}</button>`;
+  tags += `<button type="button" class="icon-action-btn icon-preview-btn${t.waitingOn ? ' active' : ''}" data-waiting-toggle="${t.id}" title="${t.waitingOn ? 'En attente de ' + escapeHtml(t.waitingOn) : 'Ajouter une personne en attente'}">@${t.waitingOn ? ' ' + escapeHtml(t.waitingOn) : ''}</button>`;
   tags += `<span class="attachment-icon-wrap">
-      <button type="button" class="icon-action-btn${t.attachmentPath ? ' active' : ''}" data-attachment-icon="${t.id}" title="${t.attachmentPath ? escapeHtml(t.attachmentName || 'Fichier joint') : 'Joindre un fichier'}">📎</button>
+      <button type="button" class="icon-action-btn icon-preview-btn${t.attachmentPath ? ' active' : ''}" data-attachment-icon="${t.id}" title="${t.attachmentPath ? escapeHtml(t.attachmentName || 'Fichier joint') : 'Joindre un fichier'}">📎${t.attachmentPath ? ' ' + escapeHtml(truncate(t.attachmentName || '', 10)) : ''}</button>
       ${t.attachmentPath ? `<button type="button" class="icon-remove-overlay" data-remove-attachment="${t.id}" title="Retirer la pièce jointe" aria-label="Retirer la pièce jointe">✕</button>` : ''}
       <input type="file" class="attachment-file-input" data-attach-task="${t.id}" hidden>
     </span>`;
