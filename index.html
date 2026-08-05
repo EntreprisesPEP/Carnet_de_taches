@@ -130,14 +130,14 @@
     color:#9aa5c0;
     font-size:12px;
   }
-  .ticket-meta{
+  .ticket-no-line, .ticket-meta-right{
     text-align:right;
     font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
     font-size:12px;
     color:#9aa5c0;
     line-height:1.5;
   }
-  .ticket-meta .no{
+  .ticket-no-line .no, .ticket-meta-right .no{
     color:var(--urgent);
     font-weight:600;
   }
@@ -181,12 +181,107 @@
     .form-row{grid-template-columns:1fr 1fr;}
   }
   @media (max-width:600px){
+    html, body{ overflow-x:hidden; }
+    .wrap{ padding-left:10px; padding-right:10px; max-width:100%; }
+
     .sticky-top-scroll{
       max-height:35vh;
       overflow-y:auto;
       -webkit-overflow-scrolling:touch;
     }
+
+    /* Header becomes a 2-row grid: logo | title | theme-switch, then ticket-no | meta-right */
+    .brand-block, .header-right{ display:contents; }
+    header{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      grid-template-areas:
+        "logo title theme"
+        "ticketno ticketno meta";
+      align-items:center;
+      column-gap:10px;
+      row-gap:4px;
+      padding:10px 12px;
+    }
+    .brand-block a{ grid-area:logo; }
+    .titleblock{ grid-area:title; min-width:0; }
+    .theme-switch{ grid-area:theme; margin-bottom:0; align-self:center; }
+    .ticket-no-line{ grid-area:ticketno; text-align:left; }
+    .ticket-meta-right{ grid-area:meta; text-align:right; }
+
+    .brand-logo{ height:45px; }
+    .titleblock h1{ font-size:16px; }
+    .titleblock p{ font-size:9.5px; }
+    .account-line{ font-size:9px; }
+    .ticket-no-line, .ticket-meta-right{ font-size:10.5px; }
+
+    /* Form: Tâche full width, then Catégorie / Priorité / Échéance-icon / Ajouter on one line */
+    .form-row{
+      grid-template-columns:1.3fr 1fr 0.55fr 0.85fr;
+      grid-template-areas:
+        "task task task task"
+        "cat pri due add";
+      gap:8px;
+    }
+    .form-row > div:nth-child(1){ grid-area:task; }
+    .form-row > div:nth-child(2){ grid-area:cat; }
+    .form-row > div:nth-child(3){ grid-area:pri; }
+    .form-row > div:nth-child(4){ grid-area:due; }
+    .form-row > div:nth-child(4) .label{ display:none; }
+    .form-row > div:nth-child(4) input[type=date]{ padding:8px 2px; }
+    .form-row > div:nth-child(5){ grid-area:add; }
+    .btn-add{ width:100%; padding:8px 4px; font-size:11px; }
+
+    /* Hide "En attente de" on mobile */
+    .waiting-field-inner{ display:none; }
+
+    /* Compact filters: category + priority dropdowns, search bar, replacing chip rows */
+    .mobile-filters-block{ display:block; margin-bottom:10px; }
+    .mobile-filter-row{
+      display:flex;
+      gap:8px;
+      margin-bottom:8px;
+    }
+    .mobile-filter-select{
+      flex:1;
+      min-width:0;
+      background:var(--bg-panel);
+      border:1px solid var(--line);
+      color:var(--text-primary);
+      padding:7px 8px;
+      border-radius:var(--radius);
+      font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
+      font-size:12px;
+      height:32px;
+    }
+    .mobile-search-row{
+      position:relative;
+      display:flex;
+      align-items:center;
+    }
+    .mobile-search-row .search-icon{
+      position:absolute;
+      left:9px;
+      font-size:12px;
+      opacity:0.6;
+      pointer-events:none;
+    }
+    .mobile-search-row input{
+      width:100%;
+      background:var(--bg-panel);
+      border:1px solid var(--line);
+      color:var(--text-primary);
+      padding:7px 8px 7px 28px;
+      border-radius:var(--radius);
+      font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
+      font-size:12.5px;
+      height:32px;
+    }
+    #filterCats{ display:none; }
+    .filters span.chip[data-pf]{ display:none; }
+    #onlyWaitingWrap{ display:none; }
   }
+  .mobile-filters-block{ display:none; }
   input[type=text], input[type=date], select{
     width:100%;
     background:var(--bg);
@@ -1073,8 +1168,8 @@
         <button type="button" class="theme-btn" data-theme-btn="night">Nuit</button>
         <button type="button" class="theme-btn" data-theme-btn="day">Jour</button>
       </div>
-      <div class="ticket-meta">
-        <div>Tâche <span class="no" id="ticketNo">TD-0001</span></div>
+      <div class="ticket-no-line">Tâche <span class="no" id="ticketNo">TD-0001</span></div>
+      <div class="ticket-meta-right">
         <div id="todayDate"></div>
         <a href="https://toolbox-orcin-rho.vercel.app/" class="export-link">← Retour au Toolbox</a>
       </div>
@@ -1138,6 +1233,21 @@
     </div>
   </div>
 
+  <div class="mobile-filters-block">
+    <div class="mobile-filter-row">
+      <select id="mobileCatFilter" class="mobile-filter-select"></select>
+      <select id="mobilePriorityFilter" class="mobile-filter-select">
+        <option value="all">Toutes priorités</option>
+        <option value="urgent">Urgent</option>
+        <option value="normal">Normal</option>
+        <option value="low">Faible</option>
+      </select>
+    </div>
+    <div class="mobile-search-row">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Rechercher un mot ou un numéro...">
+    </div>
+  </div>
   <div class="filters" id="filterCats"></div>
   <div class="filters">
     <span class="chip active" data-pf="all">Toutes priorités</span>
@@ -1149,7 +1259,7 @@
       Trier par n° de projet
     </label>
     <div class="filters-spacer"></div>
-    <label class="toggle-done">
+    <label class="toggle-done" id="onlyWaitingWrap">
       <input type="checkbox" id="onlyWaitingToggle" style="accent-color:#8a6100;">
       En attente seulement
     </label>
@@ -1221,6 +1331,7 @@ let priorityFilter = "all";
 let showDone = true;
 let sortByProjectNumber = false;
 let onlyWaiting = false;
+let searchQuery = '';
 let loaded = false;
 let openCommentBoxes = new Set();
 let openWaitingBoxes = new Set();
@@ -1453,7 +1564,30 @@ function renderFilterChips(){
   filterCats.querySelectorAll('.chip').forEach(el=>{
     el.addEventListener('click', ()=>{ catFilter = el.getAttribute('data-cf'); renderFilterChips(); render(); });
   });
+
+  const mobileCatSelect = document.getElementById('mobileCatFilter');
+  if(mobileCatSelect){
+    const options = ['<option value="all">Toutes catégories</option>']
+      .concat(state.categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`));
+    mobileCatSelect.innerHTML = options.join('');
+    mobileCatSelect.value = catFilter;
+  }
 }
+
+document.getElementById('mobileCatFilter').addEventListener('change', (e)=>{
+  catFilter = e.target.value;
+  renderFilterChips();
+  render();
+});
+document.getElementById('mobilePriorityFilter').addEventListener('change', (e)=>{
+  priorityFilter = e.target.value;
+  document.querySelectorAll('[data-pf]').forEach(x=>x.classList.toggle('active', x.getAttribute('data-pf') === priorityFilter));
+  render();
+});
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchQuery = e.target.value.trim().toLowerCase();
+  render();
+});
 
 function escapeHtml(s){
   const d = document.createElement('div');
@@ -1570,6 +1704,11 @@ function render(){
     if(priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
     if(!showDone && t.done) return false;
     if(onlyWaiting && !t.waitingOn) return false;
+    if(searchQuery){
+      const haystack = [t.text, t.projectNumber, t.projectName, t.category, t.waitingOn]
+        .filter(Boolean).join(' ').toLowerCase();
+      if(!haystack.includes(searchQuery)) return false;
+    }
     return true;
   });
 
@@ -2254,6 +2393,8 @@ document.querySelectorAll('[data-pf]').forEach(el=>{
     document.querySelectorAll('[data-pf]').forEach(x=>x.classList.remove('active'));
     el.classList.add('active');
     priorityFilter = el.getAttribute('data-pf');
+    const mobileSel = document.getElementById('mobilePriorityFilter');
+    if(mobileSel) mobileSel.value = priorityFilter;
     render();
   });
 });
