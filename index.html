@@ -462,6 +462,7 @@
     display:flex;
     align-items:center;
     gap:8px;
+    flex-wrap:wrap;
   }
   .attachment-add-link{
     color:var(--text-dim);
@@ -470,20 +471,28 @@
     text-decoration:underline;
   }
   .attachment-add-link:hover{color:var(--normal);}
-  .attachment-chip{
+  .attachment-name{
     background:var(--paper-2);
     color:var(--ink);
     border:1px solid var(--line);
     font-size:12px;
     padding:4px 10px;
     border-radius:14px;
-    cursor:pointer;
-    max-width:280px;
+    max-width:220px;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
   }
-  .attachment-chip:hover{border-color:var(--normal);}
+  .attachment-action{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    font-size:11px;
+    padding:3px 9px;
+    border-radius:12px;
+    cursor:pointer;
+  }
+  .attachment-action:hover{border-color:var(--normal);color:var(--ink);}
   .attachment-remove{
     background:none;
     border:none;
@@ -1622,9 +1631,14 @@ function render(){
       if(file) uploadAttachment(taskId, file);
     });
   });
-  listArea.querySelectorAll('[data-open-attachment]').forEach(btn=>{
+  listArea.querySelectorAll('[data-view-attachment]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      openAttachment(btn.getAttribute('data-open-attachment'));
+      viewAttachment(btn.getAttribute('data-view-attachment'));
+    });
+  });
+  listArea.querySelectorAll('[data-download-attachment]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      downloadAttachment(btn.getAttribute('data-download-attachment'));
     });
   });
   listArea.querySelectorAll('[data-remove-attachment]').forEach(btn=>{
@@ -1692,29 +1706,34 @@ async function uploadAttachment(taskId, file){
   }
 }
 
-const INLINE_VIEWABLE_EXT = ['pdf','jpg','jpeg','png','gif','webp','txt'];
-async function openAttachment(taskId){
+async function viewAttachment(taskId){
   const t = state.tasks.find(x=>x.id===taskId);
   if(!t || !t.attachmentPath) return;
-  const ext = (t.attachmentName || '').split('.').pop().toLowerCase();
-  const canViewInline = INLINE_VIEWABLE_EXT.includes(ext);
-  const { data, error } = await sb.storage.from('attachments')
-    .createSignedUrl(t.attachmentPath, 60, canViewInline ? undefined : { download: t.attachmentName || true });
+  const { data, error } = await sb.storage.from('attachments').createSignedUrl(t.attachmentPath, 60);
   if(error || !data){
     console.error(error);
     showSaveErrorBanner();
     return;
   }
-  if(canViewInline){
-    window.open(data.signedUrl, '_blank');
-  } else {
-    const a = document.createElement('a');
-    a.href = data.signedUrl;
-    a.download = t.attachmentName || '';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  window.open(data.signedUrl, '_blank');
+}
+
+async function downloadAttachment(taskId){
+  const t = state.tasks.find(x=>x.id===taskId);
+  if(!t || !t.attachmentPath) return;
+  const { data, error } = await sb.storage.from('attachments')
+    .createSignedUrl(t.attachmentPath, 60, { download: t.attachmentName || true });
+  if(error || !data){
+    console.error(error);
+    showSaveErrorBanner();
+    return;
   }
+  const a = document.createElement('a');
+  a.href = data.signedUrl;
+  a.download = t.attachmentName || '';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 async function removeAttachment(taskId){
@@ -1768,7 +1787,9 @@ function attachmentSectionHtml(t){
   if(t.attachmentPath){
     return `
       <div class="attachment-row">
-        <button type="button" class="attachment-chip" data-open-attachment="${t.id}" title="Ouvrir">📎 ${escapeHtml(t.attachmentName || 'Fichier joint')}</button>
+        <span class="attachment-name">📎 ${escapeHtml(t.attachmentName || 'Fichier joint')}</span>
+        <button type="button" class="attachment-action" data-view-attachment="${t.id}" title="Ouvrir">Ouvrir</button>
+        <button type="button" class="attachment-action" data-download-attachment="${t.id}" title="Télécharger">Télécharger</button>
         <button type="button" class="attachment-remove" data-remove-attachment="${t.id}" title="Retirer la pièce jointe" aria-label="Retirer la pièce jointe">✕</button>
       </div>`;
   }
