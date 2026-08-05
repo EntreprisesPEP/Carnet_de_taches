@@ -177,6 +177,13 @@
   @media (max-width:720px){
     .form-row{grid-template-columns:1fr 1fr;}
   }
+  @media (max-width:600px){
+    .sticky-top{
+      max-height:35vh;
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+  }
   input[type=text], input[type=date], select{
     width:100%;
     background:var(--bg);
