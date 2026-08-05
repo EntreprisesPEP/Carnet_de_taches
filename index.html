@@ -1074,6 +1074,31 @@
     color:#5f6f95;
     font-size:11px;
   }
+  .account-row{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .logout-icon-btn{
+    background:none;
+    border:1px solid rgba(255,255,255,0.25);
+    color:#9aa5c0;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    font-size:10px;
+    line-height:1;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    flex-shrink:0;
+  }
+  .logout-icon-btn:hover{
+    border-color:var(--brand-red, #c41230);
+    color:#fff;
+  }
 .mobile-filters-block{
   display:flex;
   gap:8px;
@@ -1267,7 +1292,10 @@
       <div class="titleblock">
         <h1>Carnet de tâches</h1>
         <p>Liste de tâches professionnelle</p>
-        <p class="account-line" id="accountLine"></p>
+        <span class="account-row">
+          <p class="account-line" id="accountLine"></p>
+          <button type="button" id="logoutBtn" class="logout-icon-btn" title="Déconnexion" aria-label="Déconnexion">&#9211;</button>
+        </span>
       </div>
     </div>
     <div class="header-right">
@@ -1497,6 +1525,14 @@ document.getElementById('loginBtn').addEventListener('click', async ()=>{
 });
 document.getElementById('loginPassword').addEventListener('keydown', (e)=>{
   if(e.key === 'Enter') document.getElementById('loginBtn').click();
+});
+document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+  await sb.auth.signOut();
+  currentUser = null;
+  loaded = false;
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  showLoginScreen();
 });
 
 async function initAuth(){
