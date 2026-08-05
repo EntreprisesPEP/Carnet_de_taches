@@ -1846,8 +1846,8 @@ async function importRows(rows){
     msgEl.className = 'csv-import-msg error';
     return;
   }
-  let added = 0, updated = 0, skipped = 0;
-  const toUpsert = [];
+  let added = 0, updated = 0, skipped = 0, duplicatesInFile = 0;
+  const upsertMap = new Map(); // key: lowercase number -> {number, name} — dedupes repeats within this file
   rows.forEach((cols, idx)=>{
     const num = String(cols[0] || '').trim();
     const name = String(cols[1] || '').trim();
@@ -1855,23 +1855,31 @@ async function importRows(rows){
       return;
     }
     if(!num || !name){ skipped++; return; }
-    const existing = state.projects.find(p => p.number.trim().toLowerCase() === num.toLowerCase());
+    const key = num.toLowerCase();
+    if(upsertMap.has(key)) duplicatesInFile++;
+    upsertMap.set(key, { number: num, name });
+  });
+
+  upsertMap.forEach(({ number, name })=>{
+    const existing = state.projects.find(p => p.number.trim().toLowerCase() === number.toLowerCase());
     if(existing){
-      if(existing.name !== name){ existing.name = name; updated++; toUpsert.push({ number: num, name }); }
+      if(existing.name !== name){ existing.name = name; updated++; }
     } else {
-      state.projects.push({ number: num, name });
+      state.projects.push({ number, name });
       added++;
-      toUpsert.push({ number: num, name });
     }
   });
+
   renderProjectDatalist();
   renderProjectManagerList();
   updateProjectLookup();
   let msg = `${added} projet(s) ajouté(s), ${updated} mis à jour`;
+  if(duplicatesInFile) msg += ` (${duplicatesInFile} doublon(s) dans le fichier fusionné(s))`;
   if(skipped) msg += `, ${skipped} ligne(s) ignorée(s)`;
   msgEl.textContent = msg + '.';
   msgEl.className = 'csv-import-msg';
 
+  const toUpsert = Array.from(upsertMap.values());
   if(toUpsert.length > 0){
     const { error } = await sb.from('todo_projects').upsert(toUpsert, { onConflict: 'number' });
     if(error){ console.error(error); showSaveErrorBanner(); }
