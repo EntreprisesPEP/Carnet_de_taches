@@ -1026,7 +1026,37 @@
     color:#5f6f95;
     font-size:11px;
   }
-.mobile-filters-block{ display:none; }
+.mobile-filters-block{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:10px;
+}
+.mobile-filter-select{ display:none; }
+.mobile-search-row{
+  position:relative;
+  display:flex;
+  align-items:center;
+  width:240px;
+}
+.mobile-search-row .search-icon{
+  position:absolute;
+  left:10px;
+  font-size:12px;
+  opacity:0.6;
+  pointer-events:none;
+}
+.mobile-search-row input{
+  width:100%;
+  background:var(--bg-panel);
+  border:1px solid var(--line);
+  color:var(--text-primary);
+  padding:7px 10px 7px 28px;
+  border-radius:var(--radius);
+  font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
+  font-size:12.5px;
+  height:34px;
+  box-sizing:border-box;
+}
 @media (max-width:600px){
   .wrap{ padding-left:10px; padding-right:10px; max-width:100%; width:100%; box-sizing:border-box; }
 
@@ -1087,13 +1117,15 @@
   .waiting-field-inner{ display:none !important; }
 
   /* Compact filters: category + priority dropdowns + search, all on one line */
-  .mobile-filters-block{ display:block !important; margin-bottom:10px; }
-  .mobile-filter-row{
-    display:flex;
+  .mobile-filters-block{
+    display:flex !important;
+    justify-content:flex-start;
     gap:6px;
     align-items:center;
+    margin-bottom:10px;
   }
   .mobile-filter-select{
+    display:block !important;
     flex:1;
     min-width:0;
     background:var(--bg-panel);
@@ -1106,30 +1138,14 @@
     height:32px;
   }
   .mobile-search-row{
-    position:relative;
-    display:flex;
-    align-items:center;
     flex:1.2;
     min-width:0;
-  }
-  .mobile-search-row .search-icon{
-    position:absolute;
-    left:8px;
-    font-size:11px;
-    opacity:0.6;
-    pointer-events:none;
+    width:auto;
   }
   .mobile-search-row input{
-    width:100%;
-    background:var(--bg-panel);
-    border:1px solid var(--line);
-    color:var(--text-primary);
-    padding:0 8px 0 24px;
-    border-radius:var(--radius);
-    font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
-    font-size:11.5px;
     height:32px;
-    box-sizing:border-box;
+    font-size:11.5px;
+    padding:0 8px 0 24px;
   }
   #filterCats{ display:none !important; }
   .filters span.chip[data-pf]{ display:none !important; }
@@ -1244,19 +1260,17 @@
   </div>
 
   <div class="mobile-filters-block">
-    <div class="mobile-filter-row">
-      <select id="mobileCatFilter" class="mobile-filter-select"></select>
-      <select id="mobilePriorityFilter" class="mobile-filter-select">
-        <option value="all">Toutes priorités</option>
-        <option value="urgent">Urgent</option>
-        <option value="normal">Normal</option>
-        <option value="low">Faible</option>
-      </select>
-      <span class="mobile-search-row">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Rechercher...">
-      </span>
-    </div>
+    <select id="mobileCatFilter" class="mobile-filter-select"></select>
+    <select id="mobilePriorityFilter" class="mobile-filter-select">
+      <option value="all">Toutes priorités</option>
+      <option value="urgent">Urgent</option>
+      <option value="normal">Normal</option>
+      <option value="low">Faible</option>
+    </select>
+    <span class="mobile-search-row">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Rechercher...">
+    </span>
   </div>
   <div class="filters" id="filterCats"></div>
   <div class="filters">
