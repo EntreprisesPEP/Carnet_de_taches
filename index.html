@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Carnet de tâches</title>
 <meta name="theme-color" content="#14213d">
 <link rel="manifest" href="manifest.json">
@@ -1028,8 +1028,7 @@
   }
 .mobile-filters-block{ display:none; }
 @media (max-width:600px){
-  html, body{ overflow-x:hidden; }
-  .wrap{ padding-left:10px; padding-right:10px; max-width:100%; }
+  .wrap{ padding-left:10px; padding-right:10px; max-width:100%; width:100%; box-sizing:border-box; }
 
   .sticky-top-scroll{
     max-height:35vh;
