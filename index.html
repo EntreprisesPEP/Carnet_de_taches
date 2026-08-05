@@ -451,6 +451,42 @@
     text-decoration:underline;
   }
   .comment-toggle-btn:hover{color:var(--normal);}
+  .attachment-row{
+    margin-top:8px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .attachment-add-link{
+    color:var(--text-dim);
+    font-size:11px;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .attachment-add-link:hover{color:var(--normal);}
+  .attachment-chip{
+    background:var(--paper-2);
+    color:var(--ink);
+    border:1px solid var(--line);
+    font-size:12px;
+    padding:4px 10px;
+    border-radius:14px;
+    cursor:pointer;
+    max-width:280px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .attachment-chip:hover{border-color:var(--normal);}
+  .attachment-remove{
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-size:13px;
+    opacity:0.6;
+  }
+  .attachment-remove:hover{opacity:1;color:var(--overdue);}
   .comment-add-inline{
     margin-top:8px;
     display:flex;
@@ -999,7 +1035,7 @@
     <div class="form-row">
       <div>
         <span class="label">Tâche</span>
-        <input type="text" id="inputText" placeholder="Ex : Rappeler le sous-traitant en excavation">
+        <input type="text" id="inputText" placeholder="Ex : Envoyer la fiche technique du regard...">
       </div>
       <div>
         <span class="label label-with-icons">
@@ -1039,7 +1075,7 @@
       <div class="project-field-inner" id="projectFieldInner">
         <div class="proj-num-wrap">
           <span class="label">N° de projet</span>
-          <input type="text" id="inputProjectNum" placeholder="Ex : 2451" autocomplete="off">
+          <input type="text" id="inputProjectNum" placeholder="Écrire numéro de projet" autocomplete="off">
           <div class="proj-dropdown" id="projDropdown"></div>
         </div>
         <div class="project-lookup" id="projectLookup">—</div>
@@ -1235,7 +1271,9 @@ function taskRowToTask(row){
     projectNumber: row.project_number,
     projectName: row.project_name,
     waitingOn: row.waiting_on,
-    comments: Array.isArray(row.comments) ? row.comments : []
+    comments: Array.isArray(row.comments) ? row.comments : [],
+    attachmentPath: row.attachment_path || null,
+    attachmentName: row.attachment_name || null
   };
 }
 
@@ -1571,6 +1609,72 @@ function render(){
   listArea.querySelectorAll('[data-comment-input]').forEach(ta=>{
     ta.focus();
   });
+  listArea.querySelectorAll('[data-attach-task]').forEach(input=>{
+    input.addEventListener('change', (e)=>{
+      const taskId = input.getAttribute('data-attach-task');
+      const file = e.target.files[0];
+      if(file) uploadAttachment(taskId, file);
+    });
+  });
+  listArea.querySelectorAll('[data-open-attachment]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      openAttachment(btn.getAttribute('data-open-attachment'));
+    });
+  });
+  listArea.querySelectorAll('[data-remove-attachment]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      removeAttachment(btn.getAttribute('data-remove-attachment'));
+    });
+  });
+}
+
+async function uploadAttachment(taskId, file){
+  const t = state.tasks.find(x=>x.id===taskId);
+  if(!t) return;
+  const path = `${currentUser.id}/${taskId}/${Date.now()}_${file.name}`;
+  const { error: uploadError } = await sb.storage.from('attachments').upload(path, file);
+  if(uploadError){
+    console.error(uploadError);
+    showSaveErrorBanner();
+    return;
+  }
+  const { error: updateError } = await sb.from('todo_tasks')
+    .update({ attachment_path: path, attachment_name: file.name })
+    .eq('id', taskId);
+  if(updateError){
+    console.error(updateError);
+    showSaveErrorBanner();
+    return;
+  }
+  t.attachmentPath = path;
+  t.attachmentName = file.name;
+  render();
+}
+
+async function openAttachment(taskId){
+  const t = state.tasks.find(x=>x.id===taskId);
+  if(!t || !t.attachmentPath) return;
+  const { data, error } = await sb.storage.from('attachments').createSignedUrl(t.attachmentPath, 60);
+  if(error || !data){
+    console.error(error);
+    showSaveErrorBanner();
+    return;
+  }
+  window.open(data.signedUrl, '_blank');
+}
+
+async function removeAttachment(taskId){
+  const t = state.tasks.find(x=>x.id===taskId);
+  if(!t || !t.attachmentPath) return;
+  const path = t.attachmentPath;
+  t.attachmentPath = null;
+  t.attachmentName = null;
+  render();
+  await sb.storage.from('attachments').remove([path]);
+  const { error } = await sb.from('todo_tasks')
+    .update({ attachment_path: null, attachment_name: null })
+    .eq('id', taskId);
+  if(error){ console.error(error); showSaveErrorBanner(); }
 }
 
 function taskCardHtml(t){
@@ -1598,10 +1702,28 @@ function taskCardHtml(t){
       <div class="task-body">
         <div class="task-text">${escapeHtml(t.text)}</div>
         <div class="task-tags">${tags}</div>
+        ${attachmentSectionHtml(t)}
         ${commentsSectionHtml(t)}
       </div>
       <button class="del-btn" data-id="${t.id}" title="Supprimer" aria-label="Supprimer">✕</button>
       <span class="task-created">${escapeHtml(formatCreatedAt(t.createdAt))}</span>
+    </div>`;
+}
+
+function attachmentSectionHtml(t){
+  if(t.attachmentPath){
+    return `
+      <div class="attachment-row">
+        <button type="button" class="attachment-chip" data-open-attachment="${t.id}" title="Ouvrir">📎 ${escapeHtml(t.attachmentName || 'Fichier joint')}</button>
+        <button type="button" class="attachment-remove" data-remove-attachment="${t.id}" title="Retirer la pièce jointe" aria-label="Retirer la pièce jointe">✕</button>
+      </div>`;
+  }
+  return `
+    <div class="attachment-row">
+      <label class="attachment-add-link">
+        📎 Joindre un fichier
+        <input type="file" class="attachment-file-input" data-attach-task="${t.id}" hidden>
+      </label>
     </div>`;
 }
 
