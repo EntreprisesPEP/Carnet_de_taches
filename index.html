@@ -180,108 +180,6 @@
   @media (max-width:720px){
     .form-row{grid-template-columns:1fr 1fr;}
   }
-  @media (max-width:600px){
-    html, body{ overflow-x:hidden; }
-    .wrap{ padding-left:10px; padding-right:10px; max-width:100%; }
-
-    .sticky-top-scroll{
-      max-height:35vh;
-      overflow-y:auto;
-      -webkit-overflow-scrolling:touch;
-    }
-
-    /* Header becomes a 2-row grid: logo | title | theme-switch, then ticket-no | meta-right */
-    .brand-block, .header-right{ display:contents; }
-    header{
-      display:grid;
-      grid-template-columns:auto 1fr auto;
-      grid-template-areas:
-        "logo title theme"
-        "ticketno ticketno meta";
-      align-items:center;
-      column-gap:10px;
-      row-gap:4px;
-      padding:10px 12px;
-    }
-    .brand-block a{ grid-area:logo; }
-    .titleblock{ grid-area:title; min-width:0; }
-    .theme-switch{ grid-area:theme; margin-bottom:0; align-self:center; }
-    .ticket-no-line{ grid-area:ticketno; text-align:left; }
-    .ticket-meta-right{ grid-area:meta; text-align:right; }
-
-    .brand-logo{ height:45px; }
-    .titleblock h1{ font-size:16px; }
-    .titleblock p{ font-size:9.5px; }
-    .account-line{ font-size:9px; }
-    .ticket-no-line, .ticket-meta-right{ font-size:10.5px; }
-
-    /* Form: Tâche full width, then Catégorie / Priorité / Échéance-icon / Ajouter on one line */
-    .form-row{
-      grid-template-columns:1.3fr 1fr 0.55fr 0.85fr;
-      grid-template-areas:
-        "task task task task"
-        "cat pri due add";
-      gap:8px;
-    }
-    .form-row > div:nth-child(1){ grid-area:task; }
-    .form-row > div:nth-child(2){ grid-area:cat; }
-    .form-row > div:nth-child(3){ grid-area:pri; }
-    .form-row > div:nth-child(4){ grid-area:due; }
-    .form-row > div:nth-child(4) .label{ display:none; }
-    .form-row > div:nth-child(4) input[type=date]{ padding:8px 2px; }
-    .form-row > div:nth-child(5){ grid-area:add; }
-    .btn-add{ width:100%; padding:8px 4px; font-size:11px; }
-
-    /* Hide "En attente de" on mobile */
-    .waiting-field-inner{ display:none; }
-
-    /* Compact filters: category + priority dropdowns, search bar, replacing chip rows */
-    .mobile-filters-block{ display:block; margin-bottom:10px; }
-    .mobile-filter-row{
-      display:flex;
-      gap:8px;
-      margin-bottom:8px;
-    }
-    .mobile-filter-select{
-      flex:1;
-      min-width:0;
-      background:var(--bg-panel);
-      border:1px solid var(--line);
-      color:var(--text-primary);
-      padding:7px 8px;
-      border-radius:var(--radius);
-      font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
-      font-size:12px;
-      height:32px;
-    }
-    .mobile-search-row{
-      position:relative;
-      display:flex;
-      align-items:center;
-    }
-    .mobile-search-row .search-icon{
-      position:absolute;
-      left:9px;
-      font-size:12px;
-      opacity:0.6;
-      pointer-events:none;
-    }
-    .mobile-search-row input{
-      width:100%;
-      background:var(--bg-panel);
-      border:1px solid var(--line);
-      color:var(--text-primary);
-      padding:7px 8px 7px 28px;
-      border-radius:var(--radius);
-      font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
-      font-size:12.5px;
-      height:32px;
-    }
-    #filterCats{ display:none; }
-    .filters span.chip[data-pf]{ display:none; }
-    #onlyWaitingWrap{ display:none; }
-  }
-  .mobile-filters-block{ display:none; }
   input[type=text], input[type=date], select{
     width:100%;
     background:var(--bg);
@@ -1128,6 +1026,109 @@
     color:#5f6f95;
     font-size:11px;
   }
+.mobile-filters-block{ display:none; }
+@media (max-width:600px){
+  html, body{ overflow-x:hidden; }
+  .wrap{ padding-left:10px; padding-right:10px; max-width:100%; }
+
+  .sticky-top-scroll{
+    max-height:35vh;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* Header becomes a 2-row grid: logo | title | theme-switch, then ticket-no | meta-right */
+  .brand-block, .header-right{ display:contents; }
+  header{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    grid-template-areas:
+      "logo title theme"
+      "ticketno ticketno meta";
+    align-items:center;
+    column-gap:10px;
+    row-gap:4px;
+    padding:10px 12px;
+  }
+  .brand-block a{ grid-area:logo; }
+  .titleblock{ grid-area:title; min-width:0; }
+  .theme-switch{ grid-area:theme; margin-bottom:0; align-self:center; }
+  .ticket-no-line{ grid-area:ticketno; text-align:left; }
+  .ticket-meta-right{ grid-area:meta; text-align:right; }
+
+  .brand-logo{ height:45px; }
+  .titleblock h1{ font-size:16px; }
+  .titleblock p{ font-size:9.5px; }
+  .account-line{ font-size:9px; }
+  .ticket-no-line, .ticket-meta-right{ font-size:10.5px; }
+
+  /* Form: Tâche full width, then Catégorie / Priorité / Échéance-icon / Ajouter on one line */
+  .form-row{
+    grid-template-columns:1.3fr 1fr 0.55fr 0.85fr;
+    grid-template-areas:
+      "task task task task"
+      "cat pri due add";
+    gap:8px;
+  }
+  .form-row > div:nth-child(1){ grid-area:task; }
+  .form-row > div:nth-child(2){ grid-area:cat; }
+  .form-row > div:nth-child(3){ grid-area:pri; }
+  .form-row > div:nth-child(4){ grid-area:due; }
+  .form-row > div:nth-child(4) .label{ display:none; }
+  .form-row > div:nth-child(4) input[type=date]{ padding:8px 2px; }
+  .form-row > div:nth-child(5){ grid-area:add; }
+  .btn-add{ width:100%; padding:8px 4px; font-size:11px; }
+
+  /* Hide "En attente de" on mobile */
+  .waiting-field-inner{ display:none !important; }
+
+  /* Compact filters: category + priority dropdowns, search bar, replacing chip rows */
+  .mobile-filters-block{ display:block !important; margin-bottom:10px; }
+  .mobile-filter-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .mobile-filter-select{
+    flex:1;
+    min-width:0;
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    color:var(--text-primary);
+    padding:7px 8px;
+    border-radius:var(--radius);
+    font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
+    font-size:12px;
+    height:32px;
+  }
+  .mobile-search-row{
+    position:relative;
+    display:flex;
+    align-items:center;
+  }
+  .mobile-search-row .search-icon{
+    position:absolute;
+    left:9px;
+    font-size:12px;
+    opacity:0.6;
+    pointer-events:none;
+  }
+  .mobile-search-row input{
+    width:100%;
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    color:var(--text-primary);
+    padding:7px 8px 7px 28px;
+    border-radius:var(--radius);
+    font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
+    font-size:12.5px;
+    height:32px;
+  }
+  #filterCats{ display:none !important; }
+  .filters span.chip[data-pf]{ display:none !important; }
+  #onlyWaitingWrap{ display:none !important; }
+  .filters label.toggle-done:not(#sortProjWrap):not(#onlyWaitingWrap){ display:none !important; }
+}
 </style>
 </head>
 <body>
