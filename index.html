@@ -84,7 +84,7 @@
   }
   .sticky-top{
     position:sticky;
-    top:0;
+    top:20px;
     z-index:30;
     background:var(--bg);
     padding-top:4px;
@@ -2255,6 +2255,7 @@ async function confirmNewCategory(){
   document.getElementById('newCatInline').classList.remove('show');
   if(!state.categories.includes(clean)){
     state.categories.push(clean);
+    state.categories.sort((a, b) => a.localeCompare(b, 'fr'));
     renderCategoryOptions();
     renderFilterChips();
     inputCat.value = clean;
