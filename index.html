@@ -1628,10 +1628,23 @@ function render(){
   });
 }
 
+function sanitizeFileName(name){
+  const dotIndex = name.lastIndexOf('.');
+  const base = dotIndex > 0 ? name.slice(0, dotIndex) : name;
+  const ext = dotIndex > 0 ? name.slice(dotIndex) : '';
+  const cleanBase = base
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // strip accents
+    .replace(/[^a-zA-Z0-9._-]+/g, '_')
+    .replace(/_+/g, '_')
+    .slice(0, 80);
+  const cleanExt = ext.replace(/[^a-zA-Z0-9.]/g, '');
+  return (cleanBase || 'fichier') + cleanExt;
+}
+
 async function uploadAttachment(taskId, file){
   const t = state.tasks.find(x=>x.id===taskId);
   if(!t) return;
-  const path = `${currentUser.id}/${taskId}/${Date.now()}_${file.name}`;
+  const path = `${currentUser.id}/${taskId}/${Date.now()}_${sanitizeFileName(file.name)}`;
   const { error: uploadError } = await sb.storage.from('attachments').upload(path, file);
   if(uploadError){
     console.error(uploadError);
