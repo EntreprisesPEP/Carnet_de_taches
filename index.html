@@ -633,11 +633,7 @@
   }
   .project-field-inner.show{display:flex;}
   .waiting-field-inner{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    margin-left:auto;
-    min-width:200px;
+    display:none;
   }
   .proj-num-wrap{width:200px;position:relative;}
   .proj-dropdown{
@@ -1028,15 +1024,28 @@
   }
 .mobile-filters-block{
   display:flex;
-  justify-content:flex-end;
-  margin-bottom:10px;
+  gap:8px;
+  align-items:center;
+  margin-bottom:14px;
 }
-.mobile-filter-select{ display:none; }
+.mobile-filter-select{
+  flex:0 1 220px;
+  min-width:0;
+  background:var(--bg-panel);
+  border:1px solid var(--line);
+  color:var(--text-primary);
+  padding:0 10px;
+  border-radius:var(--radius);
+  font-family:Calibri,'Segoe UI',Candara,Optima,Arial,sans-serif;
+  font-size:12.5px;
+  height:34px;
+}
 .mobile-search-row{
   position:relative;
   display:flex;
   align-items:center;
-  width:240px;
+  flex:1;
+  min-width:0;
 }
 .mobile-search-row .search-icon{
   position:absolute;
@@ -1057,6 +1066,12 @@
   height:34px;
   box-sizing:border-box;
 }
+/* Chip-based filters and the extra toggles are retired in favor of the dropdown+search row above,
+   but keep the "trier par n° de projet" toggle (still controlled by JS) */
+#filterCats{ display:none !important; }
+.filters span.chip[data-pf]{ display:none !important; }
+#onlyWaitingWrap{ display:none !important; }
+.filters label.toggle-done:not(#sortProjWrap):not(#onlyWaitingWrap){ display:none !important; }
 @media (max-width:600px){
   .wrap{ padding-left:10px; padding-right:10px; max-width:100%; width:100%; box-sizing:border-box; }
 
